@@ -1,2 +1,2 @@
 # CUT
-Basic Linux cpu usage tracker 
+ Basic linux CPU usage tracker

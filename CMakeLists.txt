@@ -1,0 +1,27 @@
+cmake_minimum_required(VERSION 3.10)
+
+# Project name
+project(CUT)
+
+# Choose compiler
+#set(path_to_gcc )
+#set(path_to_clang )
+# SET(CMAKE_C_COMPILER ) 
+
+# Regular vars
+set(path_src ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(path_inc ${CMAKE_CURRENT_SOURCE_DIR}/src/inc)
+set(source 
+    ${path_src}/main.c ${path_inc}/main.h)
+  
+# Add the executables
+add_executable(program ${source})
+
+# Add pthread library
+set(THREADS_PREFER_PTHREAD_INIT true)
+set(THREADS_PREFER_PTHREAD_INIT ON)
+find_package(Threads REQUIRED)
+target_link_libraries(program Threads::Threads)
+
+# Add headers
+target_include_directories(program PRIVATE ${path_inc})
