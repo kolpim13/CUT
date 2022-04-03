@@ -5,12 +5,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include <signal.h>
 #include <unistd.h>
 
 #include <threads.h>
 #include <stdatomic.h>
+
+#include "reader.h"
+#include "general.h"
 
 // TERMINATION PROCESS
 #define	SIG_TERM_FALSE	0
