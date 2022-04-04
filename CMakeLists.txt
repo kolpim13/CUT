@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Project name
-project(CUT)
+# Choose compiler and flags. (Try to comment these lines if doesn`t work)
+	# GCC
+#SET(CMAKE_C_COMPILER "gcc-9.4.0")
+SET (CMAKE_C_FLAGS, "-Wall -Wextra, -std=c11")
 
-# Choose compiler
-#set(path_to_gcc )
-#set(path_to_clang )
-# SET(CMAKE_C_COMPILER ) 
+	# CLANG
+#SET(CMAKE_C_COMPILER, "usr/bin/clang")
+
+
+# Project name
+project(CUT) 
 
 # Regular vars
 set(path_src ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -27,3 +31,6 @@ target_link_libraries(program Threads::Threads)
 
 # Add headers
 target_include_directories(program PRIVATE ${path_inc})
+
+# Choose C standart (C11)
+#set_property(TARGET program PROPERTY C_STANDART 11)

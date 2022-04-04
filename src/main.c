@@ -58,8 +58,8 @@ int ReaderThreadFunc(void* thread_data) {
 		if (Queue_isFull(q_rawData) == true) {
 			continue;
 		}
-		char raw_data[READER_FILE_LEN];
 
+		char raw_data[READER_FILE_LEN];
 		if (reader_get_cpu_info(raw_data) == true) {
 			Queue_add(q_rawData, (void*)raw_data);
 		}

@@ -18,8 +18,8 @@ bool Queue_add(Queue* q, void* elem) {
 		return false;
 	}
 
-	q->data[pos] = elem;
-	amount++;
+	q->data[q->pos] = elem;
+	q->amount++;
 
 	return true;
 }
@@ -28,7 +28,7 @@ bool Queue_getLast(Queue* q, void* elem) {
 		return false;
 	}
 
-	elem = q->data[pos];
+	elem = q->data[q->pos];
 	return true;
 }
 bool Queue_pop(Queue* q, void* elem) {
