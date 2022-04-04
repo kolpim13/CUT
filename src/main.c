@@ -68,9 +68,9 @@ void terminate_handler(int signum, siginfo_t* info, void* ptr) {
 }
 
 int ReaderThreadFunc(void* thread_data) {
-	atomic_store(&watchdog_reader, WATCHDOG_FALSE);
-
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		atomic_store(&watchdog_reader, WATCHDOG_FALSE);
+
 		if (Queue_isFull(q_rawData) == true) {
 			continue;
 		}
@@ -94,8 +94,7 @@ int AnalyzerThreadFunc(void* thread_data) {
 		if (Queue_isEmpty(q_rawData) == true) {
 			continue;
 		}
-
-		if ((raw_data = Queue_pop(q_rawData)) == NULL) {
+		if ((raw_data = (char *)Queue_pop(q_rawData)) == NULL) {
 			continue;
 		}
 
@@ -111,10 +110,19 @@ int AnalyzerThreadFunc(void* thread_data) {
 	return 0;
 }
 int PrinterThreadFunc(void* thread_data) {
-	atomic_store(&watchdog_printer, WATCHDOG_FALSE);
+	char* analyzedData;
 
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		atomic_store(&watchdog_printer, WATCHDOG_FALSE);
 
+		if (Queue_isEmpty(analyzedData) == true) {
+			continue;
+		}
+		if ((analyzedData = (char*)Queue_pop(analyzedData)) == NULL) {
+			continue;
+		}
+
+		write(STDERR_FILENO, analyzedData, sizeof(analyzedData));
 	}
 	
 	return 0;

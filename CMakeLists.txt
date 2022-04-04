@@ -19,6 +19,7 @@ set(source
     ${path_src}/main.c ${path_inc}/main.h
 	${path_src}/reader.c ${path_inc}/reader.h
 	${path_src}/analyzer.c ${path_inc}/analyzer.h
+	${path_src}/printer.c ${path_inc}/printer.h
 	${path_src}/general.c ${path_inc}/general.h)
   
 # Add the executables
