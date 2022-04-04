@@ -14,6 +14,11 @@ Queue* q_rawData;
 static atomic_bool terminate_signal;
 
 int main(int argc, char* argv[]) {
+	// Get ID of main thread
+	int pid = getpid();
+	int parentID = getppid();
+	printf("PID is %d, parent PID is %d\n", pid, parentID);
+
 	// Set all flags
 	atomic_init(&terminate_signal, SIG_TERM_FALSE);
 

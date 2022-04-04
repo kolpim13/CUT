@@ -50,3 +50,22 @@ bool Queue_isFull(Queue* q) {
 bool Queue_isEmpty(Queue* q) {
 	return (q->amount == 0) ? true : false;
 }
+//-----------------------------------------------
+
+static size_t CPU_amount;
+bool CPU_amount_init(void) {
+	char str[128];
+	FILE* fp = fopen("/proc/stat", "r");
+	
+	size_t index = 0;
+	while (strstr(fgets(str, 128, fp), "cpu") != NULL) {
+		index++;
+	}
+
+	CPU_amount = index;
+	return (index == 0) ? false : true;
+}
+size_t Get_CPU(void) {
+	return CPU_amount;
+}
+//-----------------------------------------------

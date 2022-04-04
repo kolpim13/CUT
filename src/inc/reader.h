@@ -12,6 +12,6 @@
 #define READER_FILE_LEN			((size_t)512)
 
 void reader_new(void);
-bool reader_get_cpu_info(char* raw_data);
+bool reader_get_cpu_info(char* raw_data, size_t raw_data_len);
 
 #endif // !_READER_H

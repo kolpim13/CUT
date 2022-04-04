@@ -23,4 +23,8 @@ bool Queue_isFull(Queue* q);
 bool Queue_isEmpty(Queue* q);
 //-----------------------------------------------
 
+bool CPU_amount_init(void);
+size_t Get_CPU(void);
+//-----------------------------------------------
+
 #endif // !_GENERAL_H
