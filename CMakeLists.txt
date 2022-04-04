@@ -18,6 +18,7 @@ set(path_inc ${CMAKE_CURRENT_SOURCE_DIR}/src/inc)
 set(source 
     ${path_src}/main.c ${path_inc}/main.h
 	${path_src}/reader.c ${path_inc}/reader.h
+	${path_src}/analyzer.c ${path_inc}/analyzer.h
 	${path_src}/general.c ${path_inc}/general.h)
   
 # Add the executables
