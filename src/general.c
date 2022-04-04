@@ -23,26 +23,25 @@ bool Queue_add(Queue* q, void* elem) {
 
 	return true;
 }
-bool Queue_getLast(Queue* q, void* elem) {
+void* Queue_getLast(Queue* q) {
 	if (Queue_isEmpty(q) == true) {
-		return false;
+		return NULL;
 	}
 
-	elem = q->data[q->pos];
-	return true;
+	return q->data[q->pos];
 }
-bool Queue_pop(Queue* q, void* elem) {
+void* Queue_pop(Queue* q) {
 	if (Queue_isEmpty(q) == true) {
-		return false;
+		return NULL;
 	}
 
-	elem = q->data[q->pos];
+	size_t temp = q->pos;
 	q->amount--;
 	q->pos++;
 	if (q->pos >= q->length) {
 		q->pos = 0;
 	}
-	return true;
+	return q->data[temp];
 }
 bool Queue_isFull(Queue* q) {
 	return (q->amount == q->length - 1) ? true : false;
