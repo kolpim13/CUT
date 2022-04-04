@@ -13,6 +13,9 @@ Queue* q_analyzedData;
 
 // Status flags
 static atomic_bool terminate_signal;
+static atomic_bool watchdog_reader;
+static atomic_bool watchdog_analyzer;
+static atomic_bool watchdog_printer;
 
 int main(int argc, char* argv[]) {
 	// Get ID of main thread
@@ -22,6 +25,9 @@ int main(int argc, char* argv[]) {
 
 	// Set all flags
 	atomic_init(&terminate_signal, SIG_TERM_FALSE);
+	atomic_init(&watchdog_reader, WATCHDOG_FALSE);
+	atomic_init(&watchdog_analyzer, WATCHDOG_FALSE);
+	atomic_init(&watchdog_printer, WATCHDOG_FALSE);
 
 	// Add termination after signal
 	struct sigaction action;
@@ -62,6 +68,8 @@ void terminate_handler(int signum, siginfo_t* info, void* ptr) {
 }
 
 int ReaderThreadFunc(void* thread_data) {
+	atomic_store(&watchdog_reader, WATCHDOG_FALSE);
+
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 		if (Queue_isFull(q_rawData) == true) {
 			continue;
@@ -81,6 +89,8 @@ int AnalyzerThreadFunc(void* thread_data) {
 	InfoCPU icpu_old = InfoCPU_new(Get_CPU());
 
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		atomic_store(&watchdog_analyzer, WATCHDOG_FALSE);
+
 		if (Queue_isEmpty(q_rawData) == true) {
 			continue;
 		}
@@ -101,23 +111,36 @@ int AnalyzerThreadFunc(void* thread_data) {
 	return 0;
 }
 int PrinterThreadFunc(void* thread_data) {
+	atomic_store(&watchdog_printer, WATCHDOG_FALSE);
+
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 
 	}
-	//thrd_exit(0);
+	
 	return 0;
 }
 int WatchdogThreadFunc(void* thread_data) {
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		if (atomic_load(&watchdog_reader) == WATCHDOG_TRUE || 
+			atomic_load(&watchdog_analyzer) == WATCHDOG_TRUE || 
+			atomic_load(&watchdog_printer) == WATCHDOG_TRUE) {
+			atomic_store(&terminate_signal, SIG_TERM_TRUE);
+			write(STDERR_FILENO, WATCHDOG_MSG, sizeof(WATCHDOG_MSG));
+		}
 
+		atomic_store(&watchdog_reader, WATCHDOG_TRUE);
+		atomic_store(&watchdog_analyzer, WATCHDOG_TRUE);
+		atomic_store(&watchdog_printer, WATCHDOG_TRUE);
+
+		sleep(2);
 	}
-	//thrd_exit(0);
+	
 	return 0;
 }
 int LoggerThreadFunc(void* thread_data) {
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
-
+		
 	}
-	//thrd_exit(0);
+	
 	return 0;
 }

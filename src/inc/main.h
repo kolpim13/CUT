@@ -21,6 +21,9 @@
 #define	SIG_TERM_FALSE	0
 #define SIG_TERM_TRUE	1
 
+#define WATCHDOG_FALSE	0
+#define WATCHDOG_TRUE	1
+
 #define SIGTERM_MSG		"SIGTERM signal occured\n"
 #define WATCHDOG_MSG	"Watchdog signal occured\n"
 
