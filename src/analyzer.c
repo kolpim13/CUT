@@ -45,23 +45,20 @@ void InfoCPU_free(InfoCPU* icpu) {
 
 void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data) {
 	char* token;
-	char* token_next;
 	const char* delim = "\n";
 	size_t index = 0;
 
-	token = strtok_s(raw_data, delim, &token_next);
+	token = strtok(raw_data, delim);
 	while (token != NULL) {
 		_analyzer_parse_raw_data_single(icpu, token, index);
-		token = strtok_s(token_next, delim, &token_next);
+		token = strtok(NULL, delim);
 		index++;
 	}
 }
 static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu, size_t index) {
-	char* token_next;
-	const char* delim = " ";
+	char str[16];
 
-	char *values = strtok_s(data_single_cpu, delim, &token_next);
-	sscanf_s(values, "%I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u",
+	sscanf(data_single_cpu, "%s %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u", str,
 		&icpu->user[index], &icpu->nice[index], &icpu->system[index], &icpu->idle[index], &icpu->iowait[index],
 		&icpu->irq[index], &icpu->softirq[index], &icpu->steal[index], &icpu->guest[index], &icpu->guest_nice[index]);
 }
@@ -97,7 +94,7 @@ bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_o
 		usage = (totald[i] - idled[i]) / totald[i];
 
 		// Add into string
-		int t = sprintf_s(str_out + len, len_max - len, "%.2f", usage);
+		int t = sprintf(str_out + len, len_max - len, "%.2f", usage);
 		if (t == -1) {
 			return false;
 		}

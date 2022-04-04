@@ -14,6 +14,7 @@
 #include <stdatomic.h>
 
 #include "reader.h"
+#include "analyzer.h"
 #include "general.h"
 
 // TERMINATION PROCESS

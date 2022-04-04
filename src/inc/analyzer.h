@@ -5,7 +5,7 @@
 
 #include "general.h"
 
-#define CPU_TYPE		(unsigned long long int)
+#define CPU_TYPE		unsigned long long int
 
 typedef struct _InfoCPU {
 	CPU_TYPE* user;
@@ -23,7 +23,9 @@ typedef struct _InfoCPU {
 InfoCPU* InfoCPU_new(size_t cpu_amount);
 void InfoCPU_free(InfoCPU* icpu);
 
-bool analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data);
-char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max);
+void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data);
+bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max);
+
+static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu, size_t index);
 
 #endif // !_ANALYZER_H
