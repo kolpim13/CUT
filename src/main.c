@@ -9,6 +9,7 @@ thrd_t logger_thread;
 
 // Queues
 Queue* q_rawData;
+Queue* q_analyzedData;
 
 // Status flags
 static atomic_bool terminate_signal;
@@ -31,6 +32,7 @@ int main(int argc, char* argv[]) {
 
 	// Init queues
 	q_rawData = Queue_new(1000);
+	q_analyzedData = Queue_new(1000);
 
 	// Init threads
 	thrd_create(&reader_thread, ReaderThreadFunc, NULL);
@@ -48,6 +50,7 @@ int main(int argc, char* argv[]) {
 
 	// Free all allocated resources
 	Queue_free(q_rawData);
+	Queue_free(q_analyzedData);
 
 	// The end
 	return 0;
@@ -69,14 +72,32 @@ int ReaderThreadFunc(void* thread_data) {
 			Queue_add(q_rawData, (void*)raw_data);
 		}
 	}
-	//thrd_exit(0);
+
 	return 0;
 }
 int AnalyzerThreadFunc(void* thread_data) {
-	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+	char* raw_data;
+	InfoCPU icpu = InfoCPU_new(Get_CPU());
+	InfoCPU icpu_old = InfoCPU_new(Get_CPU());
 
+	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		if (Queue_isEmpty(q_rawData) == true) {
+			continue;
+		}
+
+		if ((raw_data = Queue_pop(q_rawData)) == NULL) {
+			continue;
+		}
+
+		char str_analyzedData[128];
+		analyzer_parse_raw_data(icpu, raw_data);
+		analyzer_calculate_cpu_usage(icpu_old, icpu, str_analyzedData, 128);
+		Queue_add(q_analyzedData, (void*)str_analyzedData);
 	}
-	//thrd_exit(0);
+
+	InfoCPU_free(icpu);
+	InfoCPU_free(icpu_old);
+
 	return 0;
 }
 int PrinterThreadFunc(void* thread_data) {

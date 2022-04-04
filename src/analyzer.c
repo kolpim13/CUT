@@ -13,6 +13,20 @@ InfoCPU* InfoCPU_new(size_t cpu_amount) {
 	icpu->guest = (CPU_TYPE*)malloc(sizeof(CPU_TYPE) * cpu_amount);
 	icpu->guest_nice = (CPU_TYPE*)malloc(sizeof(CPU_TYPE) * cpu_amount);
 
+	// Init all with zero value
+	for (size_t i = 0; i < cpu_amount; i++) {
+		icpu->user[i] = 0;
+		icpu->nice[i] = 0;
+		icpu->system[i] = 0;
+		icpu->idle[i] = 0;
+		icpu->iowait[i] = 0;
+		icpu->irq[i] = 0;
+		icpu->softirq[i] = 0;
+		icpu->steal[i] = 0;
+		icpu->guest[i] = 0;
+		icpu->guest_nice[i] = 0;
+	}
+
 	return icpu;
 }
 void InfoCPU_free(InfoCPU* icpu) {
