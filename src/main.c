@@ -18,6 +18,12 @@ static atomic_bool watchdog_analyzer;
 static atomic_bool watchdog_printer;
 
 int main(int argc, char* argv[]) {
+	// Get 
+	if (CPU_amount_init() == false) {
+		write(STDERR_FILENO, analyzedData, sizeof(analyzedData));
+		return 0;
+	}
+
 	// Get ID of main thread
 	int pid = getpid();
 	int parentID = getppid();

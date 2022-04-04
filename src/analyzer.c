@@ -58,7 +58,7 @@ void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data) {
 static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu, size_t index) {
 	char str[16];
 
-	sscanf(data_single_cpu, "%s %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u %I64u", str,
+	sscanf(data_single_cpu, "%s %I64llu %I64llu %I64llu %I64llu %I64llu %I64llu %I64llu %I64llu %I64llu %I64llu", str,
 		&icpu->user[index], &icpu->nice[index], &icpu->system[index], &icpu->idle[index], &icpu->iowait[index],
 		&icpu->irq[index], &icpu->softirq[index], &icpu->steal[index], &icpu->guest[index], &icpu->guest_nice[index]);
 }
@@ -94,7 +94,7 @@ bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_o
 		usage = (totald[i] - idled[i]) / totald[i];
 
 		// Add into string
-		int t = sprintf(str_out + len, len_max - len, "%.2f", usage);
+		int t = sprintf(str_out + len, len_max - len, "cpu%d %.2f\n", i, usage);
 		if (t == -1) {
 			return false;
 		}
