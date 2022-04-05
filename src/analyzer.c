@@ -63,7 +63,7 @@ static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu
 		&icpu->irq[index], &icpu->softirq[index], &icpu->steal[index], &icpu->guest[index], &icpu->guest_nice[index]);
 }
 
-bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max) {
+char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max) {
 	size_t cpu_amount = Get_CPU();
 
 	CPU_TYPE idle[cpu_amount];
@@ -94,13 +94,13 @@ bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_o
 		usage = (totald[i] - idled[i]) / totald[i];
 
 		// Add into string
-		int t = sprintf(str_out + len, len_max - len, "cpu%d %.2f\n", i, usage);
+		int t = sprintf(str_out + len, "cpu%d %.2f\n", i, usage);
 		if (t == -1) {
-			return false;
+			return NULL;
 		}
 		len += t;
 	}
 
-	return true;
+	return str_out_begin;
 }
 

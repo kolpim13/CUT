@@ -24,7 +24,7 @@ InfoCPU* InfoCPU_new(size_t cpu_amount);
 void InfoCPU_free(InfoCPU* icpu);
 
 void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data);
-bool analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max);
+char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max);
 
 static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu, size_t index);
 

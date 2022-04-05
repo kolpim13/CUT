@@ -60,6 +60,7 @@ bool CPU_amount_init(void) {
 	while (strstr(fgets(str, 128, fp), "cpu") != NULL) {
 		index++;
 	}
+	fclose(fp);
 
 	CPU_amount = index;
 	return (index == 0) ? false : true;

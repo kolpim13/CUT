@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
 
 	// Init threads
 	thrd_create(&reader_thread, ReaderThreadFunc, NULL);
-	thrd_create(&analyzer_thread, ReaderThreadFunc, NULL);
-	thrd_create(&printer_thread, ReaderThreadFunc, NULL);
-	thrd_create(&watchdog_thread, ReaderThreadFunc, NULL);
-	thrd_create(&logger_thread, ReaderThreadFunc, NULL);
+	thrd_create(&analyzer_thread, AnalyzerThreadFunc, NULL);
+	thrd_create(&printer_thread, PrinterThreadFunc, NULL);
+	thrd_create(&watchdog_thread, WatchdogThreadFunc, NULL);
+	thrd_create(&logger_thread, LoggerThreadFunc, NULL);
 
 	// Wait untill threads are done
 	thrd_join(reader_thread, NULL);
@@ -106,7 +106,7 @@ int AnalyzerThreadFunc(void* thread_data) {
 
 		char str_analyzedData[128];
 		analyzer_parse_raw_data(icpu, raw_data);
-		analyzer_calculate_cpu_usage(icpu_old, icpu, str_analyzedData, 128);
+		str_analyzedData = analyzer_calculate_cpu_usage(icpu_old, icpu, str_analyzedData, 128);
 		Queue_add(q_analyzedData, (void*)str_analyzedData);
 	}
 
@@ -138,6 +138,7 @@ int WatchdogThreadFunc(void* thread_data) {
 		if (atomic_load(&watchdog_reader) == WATCHDOG_TRUE || 
 			atomic_load(&watchdog_analyzer) == WATCHDOG_TRUE || 
 			atomic_load(&watchdog_printer) == WATCHDOG_TRUE) {
+
 			atomic_store(&terminate_signal, SIG_TERM_TRUE);
 			write(STDERR_FILENO, WATCHDOG_MSG, sizeof(WATCHDOG_MSG));
 		}
