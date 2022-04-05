@@ -18,7 +18,12 @@ bool Queue_add(Queue* q, void* elem) {
 		return false;
 	}
 
-	q->data[q->pos] = elem;
+	size_t pos = q->amount + q->pos;
+	if (pos > q->length) {
+		pos -= q->length;
+	}
+
+	q->data[pos] = elem;
 	q->amount++;
 
 	return true;
