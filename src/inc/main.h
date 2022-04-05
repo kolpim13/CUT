@@ -27,7 +27,7 @@
 #define SIGTERM_MSG			"SIGTERM signal occured\n"
 #define WATCHDOG_MSG		"Watchdog signal occured\n"
 #define CPU_UNDEFINED		"Impossible to define amount of cpu\n"
-#deinfe THREAD_CREATE_ERR	"Error during threads creating\n"
+#define THREAD_CREATE_ERR	"Error during threads creating\n"
 
 void terminate_handler(int signum, siginfo_t* info, void* ptr);
 
