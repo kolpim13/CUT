@@ -1,9 +1,11 @@
 #ifndef _GENERAL_H
 #define _GENERAL_H
 
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 // QUEUE
 typedef struct _Queue {
