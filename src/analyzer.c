@@ -42,6 +42,20 @@ void InfoCPU_free(InfoCPU* icpu) {
 	free(icpu->guest_nice);
 	free(icpu);
 }
+void InfoCPU_copy(InfoCPU* dest, InfoCPU* src) {
+	for (size_t i = 0; i < Get_CPU(); i++) {
+		dest->user[i] = src->user[i];
+		dest->nice[i] = src->nice[i];
+		dest->system[i] = src->system[i];
+		dest->idle[i] = src->idle[i];
+		dest->iowait[i] = src->iowait[i];
+		dest->irq[i] = src->irq[i];
+		dest->softirq[i] = src->softirq[i];
+		dest->steal[i] = src->steal[i];
+		dest->guest[i] = src->guest[i];
+		dest->guest_nice[i] = src->guest_nice[i];
+	}
+}
 
 void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data) {
 	char* token;
@@ -94,7 +108,7 @@ char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_
 		usage = (totald[i] - idled[i]) / totald[i];
 
 		// Add into string
-		int t = sprintf(str_out + len, "cpu%d %.2f\n", i, usage);
+		int t = sprintf(str_out + len, "cpu%ld %.2f\n", i, usage);
 		if (t == -1) {
 			return NULL;
 		}

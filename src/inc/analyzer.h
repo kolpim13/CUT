@@ -22,6 +22,7 @@ typedef struct _InfoCPU {
 
 InfoCPU* InfoCPU_new(size_t cpu_amount);
 void InfoCPU_free(InfoCPU* icpu);
+void InfoCPU_copy(InfoCPU* dest, InfoCPU* src);
 
 void analyzer_parse_raw_data(InfoCPU* icpu, char* raw_data);
 char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max);
