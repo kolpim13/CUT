@@ -5,6 +5,7 @@
 
 #include "general.h"
 
+#define ANALYZER_STR_LEN		((size_t)256)
 #define CPU_TYPE		unsigned long long int
 
 typedef struct _InfoCPU {

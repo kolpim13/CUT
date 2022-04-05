@@ -6,10 +6,12 @@ Queue* Queue_new(size_t length) {
 	q->length = length;
 	q->amount = 0;
 	q->pos = 0;
+	mtx_init(&q->mutex, mtx_plain);
 	return q;
 }
 void Queue_free(Queue* q) {
 	free(q->data);
+	mtx_destroy(q->mutex);
 	free(q);
 }
 
@@ -18,6 +20,8 @@ bool Queue_add(Queue* q, void* elem) {
 		return false;
 	}
 
+	mtx_lock(&q->mutex);
+
 	size_t pos = q->amount + q->pos;
 	if (pos > q->length) {
 		pos -= q->length;
@@ -25,6 +29,8 @@ bool Queue_add(Queue* q, void* elem) {
 
 	q->data[pos] = elem;
 	q->amount++;
+
+	mtx_unlock(&q->mutex);
 
 	return true;
 }
@@ -40,12 +46,17 @@ void* Queue_pop(Queue* q) {
 		return NULL;
 	}
 
+	mtx_lock(&q->mutex);
+
 	size_t temp = q->pos;
 	q->amount--;
 	q->pos++;
 	if (q->pos >= q->length) {
 		q->pos = 0;
 	}
+
+	mtx_unlock(&q->mutex);
+
 	return q->data[temp];
 }
 bool Queue_isFull(Queue* q) {

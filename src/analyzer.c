@@ -78,8 +78,6 @@ static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu
 }
 
 char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max) {
-	size_t cpu_amount = Get_CPU();
-
 	CPU_TYPE idle, non_idle, total;
 	CPU_TYPE idle_prev, non_idle_prev, total_prev;
 	CPU_TYPE totald, idled;
@@ -88,7 +86,7 @@ char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_
 	char* str_out_begin = str_out;
 	size_t len = 0;
 	int t;
-	for (size_t i = 0; i < cpu_amount; i++) {
+	for (size_t i = 0; i < Get_CPU(); i++) {
 		idle = icpu->idle[i] + icpu->iowait[i];
 		idle_prev = icpu_prev->idle[i] + icpu_prev->iowait[i];
 
@@ -101,7 +99,12 @@ char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_
 		totald = total - total_prev;
 		idled = idle - idle_prev;
 
-		usage = (float)(totald - idled) / ((float)totald * 100.0);
+		if (totald == 0) {
+			usage = 0.0;
+		}
+		else {
+			usage = (float)(totald - idled) / ((float)totald * 100.0);
+		}
 
 		// Add to string
 		if (i == 0) {

@@ -7,12 +7,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include <threads.h>
+
 // QUEUE
 typedef struct _Queue {
 	void** data;
 	size_t length;
 	size_t amount;
 	size_t pos;
+	mtx_t mutex;
 }Queue;
 
 Queue* Queue_new(size_t length);
