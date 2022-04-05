@@ -20,7 +20,7 @@ static atomic_bool watchdog_printer;
 int main(int argc, char* argv[]) {
 	// Get 
 	if (CPU_amount_init() == false) {
-		write(STDERR_FILENO, analyzedData, sizeof(analyzedData));
+		write(STDERR_FILENO, CPU_UNDEFINED, sizeof(CPU_UNDEFINED));
 		return 0;
 	}
 
@@ -82,7 +82,7 @@ int ReaderThreadFunc(void* thread_data) {
 		}
 
 		char raw_data[READER_FILE_LEN];
-		if (reader_get_cpu_info(raw_data) == true) {
+		if (reader_get_cpu_info(raw_data, READER_FILE_LEN) == true) {
 			Queue_add(q_rawData, (void*)raw_data);
 		}
 	}
@@ -91,8 +91,8 @@ int ReaderThreadFunc(void* thread_data) {
 }
 int AnalyzerThreadFunc(void* thread_data) {
 	char* raw_data;
-	InfoCPU icpu = InfoCPU_new(Get_CPU());
-	InfoCPU icpu_old = InfoCPU_new(Get_CPU());
+	InfoCPU* icpu = InfoCPU_new(Get_CPU());
+	InfoCPU* icpu_old = InfoCPU_new(Get_CPU());
 
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 		atomic_store(&watchdog_analyzer, WATCHDOG_FALSE);
@@ -121,10 +121,10 @@ int PrinterThreadFunc(void* thread_data) {
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 		atomic_store(&watchdog_printer, WATCHDOG_FALSE);
 
-		if (Queue_isEmpty(analyzedData) == true) {
+		if (Queue_isEmpty(q_analyzedData) == true) {
 			continue;
 		}
-		if ((analyzedData = (char*)Queue_pop(analyzedData)) == NULL) {
+		if ((analyzedData = (char*)Queue_pop(q_analyzedData)) == NULL) {
 			continue;
 		}
 
