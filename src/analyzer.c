@@ -80,35 +80,36 @@ static void _analyzer_parse_raw_data_single(InfoCPU* icpu, char* data_single_cpu
 char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_out, size_t len_max) {
 	size_t cpu_amount = Get_CPU();
 
-	CPU_TYPE idle[cpu_amount];
-	CPU_TYPE idle_prev[cpu_amount];
-	CPU_TYPE non_idle[cpu_amount];
-	CPU_TYPE non_idle_prev[cpu_amount];
-	CPU_TYPE total[cpu_amount];
-	CPU_TYPE total_prev[cpu_amount];
-	CPU_TYPE totald[cpu_amount];
-	CPU_TYPE idled[cpu_amount];
+	CPU_TYPE idle, non_idle, total;
+	CPU_TYPE idle_prev, non_idle_prev, total_prev;
+	CPU_TYPE totald, idled;
 	float usage;
 
 	char* str_out_begin = str_out;
 	size_t len = 0;
+	int t;
 	for (size_t i = 0; i < cpu_amount; i++) {
-		idle[i] = icpu->idle[i] + icpu->iowait[i];
-		idle_prev[i] = icpu_prev->idle[i] + icpu_prev->iowait[i];
+		idle = icpu->idle[i] + icpu->iowait[i];
+		idle_prev = icpu_prev->idle[i] + icpu_prev->iowait[i];
 
-		non_idle[i] = icpu->user[i] + icpu->nice[i] + icpu->system[i] + icpu->irq[i] + icpu->softirq[i] + icpu->steal[i];
-		non_idle_prev[i] = icpu_prev->user[i] + icpu_prev->nice[i] + icpu_prev->system[i] + icpu_prev->irq[i] + icpu_prev->softirq[i] + icpu_prev->steal[i];
+		non_idle = icpu->user[i] + icpu->nice[i] + icpu->system[i] + icpu->irq[i] + icpu->softirq[i] + icpu->steal[i];
+		non_idle_prev = icpu_prev->user[i] + icpu_prev->nice[i] + icpu_prev->system[i] + icpu_prev->irq[i] + icpu_prev->softirq[i] + icpu_prev->steal[i];
 
-		total[i] = idle[i] + non_idle[i];
-		total_prev[i] = idle_prev[i] + non_idle_prev[i];
+		total = idle + non_idle;
+		total_prev = idle_prev + non_idle_prev;
 
-		totald[i] = total[i] - total_prev[i];
-		idled[i] = idle[i] - idle_prev[i];
+		totald = total - total_prev;
+		idled = idle - idle_prev;
 
-		usage = (totald[i] - idled[i]) / totald[i];
+		usage = (float)(totald - idled) / ((float)totald * 100.0);
 
-		// Add into string
-		int t = sprintf(str_out + len, "cpu%ld %.2f\n", i, usage);
+		// Add to string
+		if (i == 0) {
+			t = sprintf(str_out + len, "cpu %.2f\n", usage);
+		}
+		else {
+			t = sprintf(str_out + len, "cpu%ld %.2f\n", i-1, usage);
+		}
 		if (t == -1) {
 			return NULL;
 		}
@@ -117,4 +118,3 @@ char* analyzer_calculate_cpu_usage(InfoCPU* icpu_prev, InfoCPU* icpu, char* str_
 
 	return str_out_begin;
 }
-

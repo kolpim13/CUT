@@ -106,7 +106,7 @@ int AnalyzerThreadFunc(void* thread_data) {
 
 		char str_analyzedData[128];
 		analyzer_parse_raw_data(icpu, raw_data);
-		str_analyzedData = analyzer_calculate_cpu_usage(icpu_old, icpu, str_analyzedData, 128);
+		analyzer_calculate_cpu_usage(icpu_old, icpu, str_analyzedData, 128);
 		Queue_add(q_analyzedData, (void*)str_analyzedData);
 
 		InfoCPU_copy(icpu_old, icpu);
