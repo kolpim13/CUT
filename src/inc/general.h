@@ -22,8 +22,8 @@ Queue* Queue_new(size_t length);
 void Queue_free(Queue* q);
 
 bool Queue_add(Queue* q, void* elem);
-bool Queue_getLast(Queue* q, void* elem);
-bool Queue_pop(Queue* q, void* elem);
+void* Queue_getLast(Queue* q);
+void* Queue_pop(Queue* q);
 bool Queue_isFull(Queue* q);
 bool Queue_isEmpty(Queue* q);
 //-----------------------------------------------

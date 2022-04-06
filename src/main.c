@@ -10,16 +10,14 @@ static thrd_t logger_thread;
 // Queues
 static Queue* q_rawData;
 static Queue* q_analyzedData;
-
-// Mutex
-static mtx_t mtx_rawData;
-static mtx_t mtx_analyzedData;
+static Queue* q_logger;
 
 // Status flags
 static atomic_bool terminate_signal;
 static atomic_bool watchdog_reader;
 static atomic_bool watchdog_analyzer;
 static atomic_bool watchdog_printer;
+static atomic_bool watchdog_logger;
 
 int main(int argc, char* argv[]) {
 	// Get 
@@ -38,6 +36,7 @@ int main(int argc, char* argv[]) {
 	atomic_init(&watchdog_reader, WATCHDOG_FALSE);
 	atomic_init(&watchdog_analyzer, WATCHDOG_FALSE);
 	atomic_init(&watchdog_printer, WATCHDOG_FALSE);
+	atomic_init(&watchdog_logger, WATCHDOG_FALSE);
 
 	// Add termination after signal
 	struct sigaction action;
@@ -49,17 +48,14 @@ int main(int argc, char* argv[]) {
 	// Init queues
 	q_rawData = Queue_new(1000);
 	q_analyzedData = Queue_new(1000);
-
-	// Mutex init
-	mtx_init(&mtx_rawData, mtx_plain);
-	mtx_init(&mtx_analyzedData, mtx_plain);
+	q_logger = Queue_new(1000);
 
 	// Init threads
 	if (thrd_create(&reader_thread, ReaderThreadFunc, NULL) != thrd_success ||
 		thrd_create(&analyzer_thread, AnalyzerThreadFunc, NULL) != thrd_success ||
-		thrd_create(&printer_thread, PrinterThreadFunc, NULL) != thrd_success ||
-		//thrd_create(&watchdog_thread, WatchdogThreadFunc, NULL) != thrd_success ||
-		//thrd_create(&logger_thread, LoggerThreadFunc, NULL) != thrd_success) {
+		thrd_create(&printer_thread, PrinterThreadFunc, NULL) != thrd_success || 
+		thrd_create(&watchdog_thread, WatchdogThreadFunc, NULL) != thrd_success ||
+		thrd_create(&logger_thread, LoggerThreadFunc, NULL) != thrd_success) {
 
 		fputs(THREAD_CREATE_ERR, stderr);
 		FreeAllResources();
@@ -71,8 +67,8 @@ int main(int argc, char* argv[]) {
 	thrd_join(reader_thread, NULL);
 	thrd_join(analyzer_thread, NULL);
 	thrd_join(printer_thread, NULL);
-	//thrd_join(watchdog_thread, NULL);
-	//thrd_join(logger_thread, NULL);
+	thrd_join(watchdog_thread, NULL);
+	thrd_join(logger_thread, NULL);
 
 	FreeAllResources();
 
@@ -86,6 +82,8 @@ void terminate_handler(int signum, siginfo_t* info, void* ptr) {
 }
 
 int ReaderThreadFunc(void* thread_data) {
+	struct timespec t = { .tv_sec = 0, .tv_nsec = 50000000 };
+
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 		atomic_store(&watchdog_reader, WATCHDOG_FALSE);
 
@@ -97,6 +95,12 @@ int ReaderThreadFunc(void* thread_data) {
 		if (reader_get_cpu_info(raw_data, READER_FILE_LEN) == true) {
 			Queue_add(q_rawData, (void*)raw_data);
 		}
+
+		// To logger
+		Queue_add(q_logger, (void*)Reader_got_proc_stat);
+
+		thrd_sleep(&t, &t);
+		t.tv_sec = 0; t.tv_nsec = 50000000;
 	}
 
 	return 0;
@@ -148,10 +152,13 @@ int PrinterThreadFunc(void* thread_data) {
 	return 0;
 }
 int WatchdogThreadFunc(void* thread_data) {
+	struct timespec t = { .tv_sec = 2, .tv_nsec = 0 };
+
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
 		if (atomic_load(&watchdog_reader) == WATCHDOG_TRUE || 
 			atomic_load(&watchdog_analyzer) == WATCHDOG_TRUE || 
-			atomic_load(&watchdog_printer) == WATCHDOG_TRUE) {
+			atomic_load(&watchdog_printer) == WATCHDOG_TRUE ||
+			atomic_load(&watchdog_logger) == WATCHDOG_TRUE) {
 
 			atomic_store(&terminate_signal, SIG_TERM_TRUE);
 			fputs(WATCHDOG_MSG, stderr);
@@ -162,15 +169,29 @@ int WatchdogThreadFunc(void* thread_data) {
 		atomic_store(&watchdog_reader, WATCHDOG_TRUE);
 		atomic_store(&watchdog_analyzer, WATCHDOG_TRUE);
 		atomic_store(&watchdog_printer, WATCHDOG_TRUE);
+		atomic_store(&watchdog_logger, WATCHDOG_TRUE);
 
-		thrd_sleep(&(struct timespec) {.tv_sec = 2}, NULL);
+		thrd_sleep(&t, &t);
+		t.tv_sec = 2; t.tv_nsec = 0;
 	}
 	
 	return 0;
 }
 int LoggerThreadFunc(void* thread_data) {
+	Logger_enum mes_type;
+	char mes[LOGGER_MES_LEN];
+
+	logger_init(NULL);
+
 	while (atomic_load(&terminate_signal) == SIG_TERM_FALSE) {
+		atomic_store(&watchdog_logger, WATCHDOG_FALSE);
 		
+		if ((mes = *(Logger_enum*)Queue_pop(q_logger)) == NULL) {
+			continue;
+		}
+
+		char* temp = logger_format_string(mes_type, mes);
+		logger_log(temp);
 	}
 	
 	return 0;
@@ -179,7 +200,5 @@ int LoggerThreadFunc(void* thread_data) {
 void FreeAllResources(void) {
 	Queue_free(q_rawData);
 	Queue_free(q_analyzedData);
-
-	mtx_destroy(&mtx_rawData);
-	mtx_destroy(&mtx_analyzedData);
+	Queue_free(q_logger);
 }

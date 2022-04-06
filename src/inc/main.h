@@ -15,6 +15,7 @@
 
 #include "reader.h"
 #include "analyzer.h"
+#include "logger.h"
 #include "general.h"
 
 // TERMINATION PROCESS
